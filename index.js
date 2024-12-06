@@ -25,10 +25,27 @@ const client = new MongoClient(uri, {
   }
 });
 
+
+
 async function run() {
+  const CollectionOfEvents = client.db("Cyclist-ClubDB").collection("eventsDB")
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
+
+    app.post('/events', async(req,res)=>{
+      const event = req.body;
+      const result = await CollectionOfEvents.insertOne(event)
+      res.send(result)
+    })
+    app.get('/events', async(req,res)=>{
+      const event = req.body;
+      const result = await CollectionOfEvents.find(event).toArray()
+      res.send(result)
+    })
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
