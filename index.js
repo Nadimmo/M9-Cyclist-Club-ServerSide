@@ -29,10 +29,12 @@ const client = new MongoClient(uri, {
 
 async function run() {
   const CollectionOfEvents = client.db("Cyclist-ClubDB").collection("eventsDB")
+  const CollectionOfNewsInfo = client.db("Cyclist-ClubDB").collection("newsInfoDB")
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
+    // events related api
     app.post('/events', async(req,res)=>{
       const event = req.body;
       const result = await CollectionOfEvents.insertOne(event)
@@ -44,7 +46,18 @@ async function run() {
       res.send(result)
     })
 
+    // news and info related api
+    app.post('/newsInfo', async(req,res)=>{
+      const news = req.body;
+      const result = await CollectionOfNewsInfo.insertOne(news)
+      res.send(result)
+    })
 
+    app.get('/newsInfo', async(req,res)=>{
+      const news = req.body;
+      const result= await CollectionOfNewsInfo.find(news).toArray()
+      res.send(result) 
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
