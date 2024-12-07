@@ -30,6 +30,7 @@ const client = new MongoClient(uri, {
 async function run() {
   const CollectionOfEvents = client.db("Cyclist-ClubDB").collection("eventsDB")
   const CollectionOfNewsInfo = client.db("Cyclist-ClubDB").collection("newsInfoDB")
+  const CollectionOfUsers = client.db("Cyclist-ClubDB").collection("usersDB")
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
@@ -57,6 +58,24 @@ async function run() {
       const news = req.body;
       const result= await CollectionOfNewsInfo.find(news).toArray()
       res.send(result) 
+    })
+
+    // user related api
+    app.post('/users', async(req,res)=>{
+      const userInfo = req.body;
+      const query = {email: userInfo.email}
+      const user = await CollectionOfUsers.findOne(query)
+      if(user){
+       return  res.send({message: 'user already exit'})
+      }
+      const result = await CollectionOfUsers.insertOne(userInfo)
+      res.send(result)
+    })
+
+    app.get('/users', async(req,res)=>{
+      const user = req.body;
+      const result = await CollectionOfUsers.find(user).toArray()
+      res.send(result)
     })
 
     // Send a ping to confirm a successful connection
