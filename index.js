@@ -31,6 +31,7 @@ async function run() {
   const CollectionOfEvents = client.db("Cyclist-ClubDB").collection("eventsDB")
   const CollectionOfNewsInfo = client.db("Cyclist-ClubDB").collection("newsInfoDB")
   const CollectionOfUsers = client.db("Cyclist-ClubDB").collection("usersDB")
+  const CollectionOfContact = client.db("Cyclist-ClubDB").collection("contactDB")
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
@@ -91,6 +92,21 @@ async function run() {
       const result = await CollectionOfUsers.deleteOne(filter)
       res.send(result)
     })
+
+    // contact related api
+    app.post('/contact',async(req,res)=>{
+      const contact = req.body;
+      const result = await CollectionOfContact.insertOne(contact)
+      res.send(result)
+    })
+
+    app.get('/contact', async(req,res)=>{
+      const contact = req.body;
+      const result = await CollectionOfContact.find(contact).toArray()
+      res.send(result)
+    })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
