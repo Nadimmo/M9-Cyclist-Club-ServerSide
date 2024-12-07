@@ -101,8 +101,22 @@ async function run() {
     })
 
     app.get('/contact', async(req,res)=>{
-      const contact = req.body;
-      const result = await CollectionOfContact.find(contact).toArray()
+      const request = req.body;
+      const result = await CollectionOfContact.find(request).toArray()
+      res.send(result)
+    })
+
+    app.get('/contact/:id', async(req,res)=>{
+      const userId =  req.params.id;
+      const filter = {_id: new ObjectId(userId)}
+      const result = await CollectionOfContact.findOne(filter)
+      res.send(result)
+    })
+
+    app.delete('/contact/:id', async(req,res)=>{
+      const userId = req.params.id;
+      const filter = {_id: new ObjectId(userId)}
+      const result = await CollectionOfContact.deleteOne(filter)
       res.send(result)
     })
 
