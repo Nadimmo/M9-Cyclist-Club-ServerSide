@@ -1,4 +1,5 @@
 const express = require('express')
+const jwt = require('jsonwebtoken')
 const app = express()
 const cors = require('cors')
 const port = process.env.PORT || 5000;
@@ -36,13 +37,37 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
+    // middleware verify jwt token
+    const verifyToken = (req,res,next)=>{
+      if(!req.headers.authorization){
+        res.status(401).send({ message: "unAuthorize Access" });
+      }
+      console.log(req.headers)
+      const token = req.headers.authorization
+      console.log(token)
+      jwt.verify('access-token', process.env.ACCESS_TOKEN, (error, decoded)=>{
+        if(error){
+          res.status(401).send({ message: "unAuthorize Access" });
+        }
+        req.decoded = decoded;
+        next()
+      })
+    }
+
+    // create jwt
+    app.post('/jwt',  async(req,res)=>{
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN, {expiresIn: '1h'})
+      res.send({token})
+    })
+
     // events related api
     app.post('/events', async(req,res)=>{
       const event = req.body;
       const result = await CollectionOfEvents.insertOne(event)
       res.send(result)
     })
-    app.get('/events', async(req,res)=>{
+    app.get('/events', verifyToken, async(req,res)=>{
       const event = req.body;
       const result = await CollectionOfEvents.find(event).toArray()
       res.send(result)
