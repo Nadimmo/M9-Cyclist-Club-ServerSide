@@ -42,10 +42,9 @@ async function run() {
       if(!req.headers.authorization){
         res.status(401).send({ message: "unAuthorize Access" });
       }
-      console.log(req.headers)
-      const token = req.headers.authorization
-      console.log(token)
-      jwt.verify('access-token', process.env.ACCESS_TOKEN, (error, decoded)=>{
+      const token = req.headers.authorization.split(" ")[1];
+      // console.log(token)
+      jwt.verify(token, process.env.ACCESS_TOKEN, (error, decoded)=>{
         if(error){
           res.status(401).send({ message: "unAuthorize Access" });
         }
@@ -62,25 +61,26 @@ async function run() {
     })
 
     // events related api
-    app.post('/events', async(req,res)=>{
+    app.post('/events', verifyToken, async(req,res)=>{
       const event = req.body;
       const result = await CollectionOfEvents.insertOne(event)
       res.send(result)
     })
-    app.get('/events', verifyToken, async(req,res)=>{
+    app.get('/events', async(req,res)=>{
+      // Todo: remove verifyToken
       const event = req.body;
       const result = await CollectionOfEvents.find(event).toArray()
       res.send(result)
     })
 
     // news and info related api
-    app.post('/newsInfo', async(req,res)=>{
+    app.post('/newsInfo', verifyToken, async(req,res)=>{
       const news = req.body;
       const result = await CollectionOfNewsInfo.insertOne(news)
       res.send(result)
     })
 
-    app.get('/newsInfo', async(req,res)=>{
+    app.get('/newsInfo',  async(req,res)=>{
       const news = req.body;
       const result= await CollectionOfNewsInfo.find(news).toArray()
       res.send(result) 
@@ -98,20 +98,20 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/users', async(req,res)=>{
+    app.get('/users', verifyToken, async(req,res)=>{
       const user = req.body;
       const result = await CollectionOfUsers.find(user).toArray()
       res.send(result)
     })
 
-    app.get('/users/:id', async(req,res)=>{
+    app.get('/users/:id', verifyToken, async(req,res)=>{
       const userId =  req.params.id;
       const filter = {_id: new ObjectId(userId)}
       const result = await CollectionOfUsers.findOne(filter)
       res.send(result)
     })
 
-    app.delete('/users/:id', async(req,res)=>{
+    app.delete('/users/:id', verifyToken, async(req,res)=>{
       const userId = req.params.id;
       const filter = {_id: new ObjectId(userId)}
       const result = await CollectionOfUsers.deleteOne(filter)
@@ -125,13 +125,13 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/contact', async(req,res)=>{
+    app.get('/contact',  async(req,res)=>{
       const request = req.body;
       const result = await CollectionOfContact.find(request).toArray()
       res.send(result)
     })
 
-    app.get('/contact/:id', async(req,res)=>{
+    app.get('/contact/:id',  async(req,res)=>{
       const userId =  req.params.id;
       const filter = {_id: new ObjectId(userId)}
       const result = await CollectionOfContact.findOne(filter)
@@ -145,6 +145,33 @@ async function run() {
       res.send(result)
     })
 
+    // make admin related api
+
+    app.patch('/user/admin/:id', verifyToken, async(req,res)=>{
+      const userId = req.params.id;
+      const query = {_id : new ObjectId(userId)}
+      const updateDoc ={
+        $set:{
+          role: 'admin'
+        }
+      }
+      const result = await CollectionOfUsers.updateOne(query, updateDoc)
+      res.send(result)
+
+    })
+
+    // make moderator related api
+    app.patch('/user/moderator/:id', async(req,res)=>{
+      const moderatorId = req.params.id;
+      const filter = {_id: new ObjectId(moderatorId)}
+      const updateDoc = {
+        $set: {
+          role: 'moderator'
+        }
+      }
+      const result = await CollectionOfUsers.updateOne(filter, updateDoc)
+      res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
