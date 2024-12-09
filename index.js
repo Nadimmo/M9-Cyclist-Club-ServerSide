@@ -176,7 +176,7 @@ async function run() {
     });
 
     // gallery related api
-    app.post('/gallery', async(req,res)=>{
+    app.post('/gallery',   async(req,res)=>{
       const image = req.body;
       const result = await CollectionOfGallery.insertOne(image)
       res.send(result)
@@ -218,7 +218,6 @@ async function run() {
     app.get(
       "/user/admin/:email",
       verifyToken,
-      verifyAdmin,
       async (req, res) => {
         const email = req.params.email;
         if (email !== req.decoded.email) {
@@ -238,7 +237,6 @@ async function run() {
     app.get(
       "/user/moderator/:email",
       verifyToken,
-      verifyModerator,
       async (req, res) => {
         const email = req.params.email;
         if (email !== req.decoded.email) {
