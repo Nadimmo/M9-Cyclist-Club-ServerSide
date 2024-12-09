@@ -91,7 +91,7 @@ async function run() {
     });
 
     // events related api
-    app.post("/events", verifyToken, async (req, res) => {
+    app.post("/events", verifyToken, verifyModerator,  async (req, res) => {
       const event = req.body;
       const result = await CollectionOfEvents.insertOne(event);
       res.send(result);
@@ -104,7 +104,7 @@ async function run() {
     });
 
     // news and info related api
-    app.post("/newsInfo", verifyToken, async (req, res) => {
+    app.post("/newsInfo", verifyToken, verifyModerator, async (req, res) => {
       const news = req.body;
       const result = await CollectionOfNewsInfo.insertOne(news);
       res.send(result);
@@ -128,7 +128,7 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/users", verifyToken, async (req, res) => {
+    app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
       const user = req.body;
       const result = await CollectionOfUsers.find(user).toArray();
       res.send(result);
@@ -141,7 +141,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/users/:id", verifyToken, async (req, res) => {
+    app.delete("/users/:id", verifyToken, verifyAdmin, async (req, res) => {
       const userId = req.params.id;
       const filter = { _id: new ObjectId(userId) };
       const result = await CollectionOfUsers.deleteOne(filter);
@@ -176,7 +176,7 @@ async function run() {
     });
 
     // gallery related api
-    app.post('/gallery',   async(req,res)=>{
+    app.post('/gallery', verifyToken,verifyModerator,  async(req,res)=>{
       const image = req.body;
       const result = await CollectionOfGallery.insertOne(image)
       res.send(result)
@@ -189,7 +189,7 @@ async function run() {
     })
 
     // make admin related api
-    app.patch("/user/admin/:id", verifyToken, async (req, res) => {
+    app.patch("/user/admin/:id", verifyToken, verifyAdmin, async (req, res) => {
       const userId = req.params.id;
       const query = { _id: new ObjectId(userId) };
       const updateDoc = {
@@ -202,7 +202,7 @@ async function run() {
     });
 
     // make moderator related api
-    app.patch("/user/moderator/:id", async (req, res) => {
+    app.patch("/user/moderator/:id", verifyToken, verifyAdmin, async (req, res) => {
       const moderatorId = req.params.id;
       const filter = { _id: new ObjectId(moderatorId) };
       const updateDoc = {
