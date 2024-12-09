@@ -34,6 +34,9 @@ async function run() {
   const CollectionOfContact = client
     .db("Cyclist-ClubDB")
     .collection("contactDB");
+  const CollectionOfGallery = client
+    .db("Cyclist-ClubDB")
+    .collection("GalleryDB");
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
@@ -171,6 +174,19 @@ async function run() {
       const result = await CollectionOfContact.deleteOne(filter);
       res.send(result);
     });
+
+    // gallery related api
+    app.post('/gallery', async(req,res)=>{
+      const image = req.body;
+      const result = await CollectionOfGallery.insertOne(image)
+      res.send(result)
+    })
+
+    app.get('/gallery', async(req,res)=>{
+      const image = req.body;
+      const result = await CollectionOfGallery.find(image).toArray()
+      res.send(result)
+    })
 
     // make admin related api
     app.patch("/user/admin/:id", verifyToken, async (req, res) => {
